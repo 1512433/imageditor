@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="A photo editing application ">
+    <meta name="author" content="Nguyen Nhat Quang">
+    <title>Image Editor</title>
+  </head>
+    <body>
+        <h1>Imageditor</h1>
+        <div id="app"></div>
+        <input type="file" id="imgUpload"/>
+
+        <canvas id="save_canvas" width="512" height="512" style="position:absolute;top:15%;left:15%;border:1px solid black;"></canvas>
+        <canvas id="img_canvas" width="512" height="512" style="position:absolute;top:15%;left:15%;border:1px solid black;"></canvas>
+        <canvas id="light_canvas" width="512" height="512" style="position:absolute;top:15%;left:15%;border:1px solid black;"></canvas>
+        <canvas id="drawer_canvas" width="512" height="512" style="position:absolute;top:15%;left:15%;border:1px solid black;"></canvas>
+        
+
+        
+        
+        <div class="slidecontainer">
+            <p>Brightness: <span id="bness"></span></p>
+            <input type="range" min="-100" max="100" value="0" class="slider1" id="BrNessRange" onchange="ChangeLight()">
+            <p>Contrast: <span id="btrast"></span></p>
+            <input type="range" min="-1" max="4" value="1" step="0.01" class="slider1" id="ContrRange" onchange="ChangeLight()">
+            
+          <p>Brush range: <span id="br"></span></p>
+          <input type="range" min="1" max="20" value="1" class="slider" id="BrRange">
+          <p>Brush shadow range: <span id="brsw"></span></p>
+          <input type="range" min="1" max="20" value="1" class="slider" id="ShdwRange">
+          
+        </div>
+        <div id="clr" style="margin: 5px;">
+            <input type="color" id="SetColor" value="#30f873">
+            <label for="SetColor">Set Brush Color</label>
+        </div>
+        <div class="btn-group">
+                <button class="button" onclick="DrawMode()">Drawer</button>
+                <button class="button" onclick="DrawMode(eraserMode=true)">Eraser</button>
+                
+                <button class="button" id="download">Save image</button>
+            </div>
+        <p class="save" style=" max-width: 180px;">After click "Save image", right click at the image and choose "Save image as..."</p>
+        
+        <label class="switch1">
+            <br><p>Grayscale</p><br>
+            <input type="checkbox" id="gray" onclick="ChangeGrayscaleMode()">
+            <span class="swslider round"></span>
+            
+        </label>
+        <label class="switch2">
+            <br><p>Sobel</p><br>
+            <input type="checkbox" id="sobel" onclick="ChangeSobelMode()">
+            <span class="swslider round"></span>
+        </label>
+
+        <script src="index.js"></script>
+
+    </body>
+    <link href="index.css" rel="stylesheet" type="text/css">
+    
+
+    
+</html>
