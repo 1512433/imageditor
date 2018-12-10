@@ -386,7 +386,7 @@ function Sobelfilter() {
 var save_canvas = document.getElementById('save_canvas');
 var save_ctx = save_canvas.getContext('2d');
 
-// Ý tưởng hàm download là gộp nội dung của brightness_canvas(ảnh đã thay đổi độ sáng)
+// Ý tưởng hàm download là gộp nội dung của light_canvas(ảnh đã thay đổi độ xám)
 // và drawer_canvas(các thao tác vẽ) lại trên drawer_canvas
 // click chuột phải để lưu ảnh
 
@@ -404,16 +404,3 @@ document.getElementById('download').addEventListener('click', function() {
   downloadCanvas();
 }, false);
 
-function download() {
-  
-  drawer_ctx.globalCompositeOperation = 'destination-over'; // Chuyển chế độ để không mất ctx khi đang ở eraserMode
-  save_ctx.drawImage(drawer_canvas, 0, 0);    // lưu nội dung vẽ 
-
-  drawer_ctx.drawImage(light_canvas, 0, 0);   // vẽ ảnh đã được thay đổi ánh sáng
-  drawer_ctx.drawImage(save_canvas, 0, 0);    // vẽ đè nội dung đã lưu lên ảnh 
-
-  save_ctx.clearRect(0, 0, save_ctx.width, save_ctx.height); // làm sạch context để chuẩn bị cho lần download sau
-  
-  link.href = document.getElementById(canvasId).toDataURL();
-  link.download = filename;
-}
