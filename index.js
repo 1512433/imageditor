@@ -204,7 +204,7 @@ var brightness = document.getElementById("BrNessRange");
 var output3 = document.getElementById("bness");
 output3.innerHTML = brightness.value; // Display the default slider value
 var b = 0;
-var tmp1 = parseInt(b);       // Lấy giá trị độ sáng cộng thêm
+var tmp1 = parseFloat(b);       // Lấy giá trị độ sáng cộng thêm
 
 brightness.oninput = function() {
   b = this.value;
@@ -226,6 +226,51 @@ contrast.oninput = function() {
 }
 
 
+// --------------H I S T O G R A M -----------------------
+var histogram_canvas = document.getElementById("histogram_canvas");
+var histogram_ctx = histogram_canvas.getContext('2d');
+
+function ShowHistogram(){
+  histogram_ctx.clearRect(0, 0, histogram_canvas.width, histogram_canvas.height);
+  var tmp2_idata = light_ctx.getImageData(0 , 0, 512, 512);
+  if(gray_on==false){
+    for(var i=0; i<tmp2_idata.data.length;i+=4){
+      var red = tmp2_idata.data[i];
+      var green = tmp2_idata.data[i+1];
+      var blue = tmp2_idata.data[i+2];
+      var gray_value = (3*red+4*green+blue)>>>3;
+  
+      tmp2_idata.data[i] = gray_value;
+      }
+  }
+  
+    var hist = [];
+    var val;
+    // initialize the histogram
+    for(var i=0; i < 256; ++i)
+        hist[i] = 0;
+  
+    for(var i=0; i < tmp2_idata.data.length; i+=4){
+      val = Math.floor((tmp2_idata.data[i]/255.0)*255);
+      ++hist[val];
+    }
+    for(var i=0; i<hist.length;i++){
+      hist[i] = hist[i]/(Math.sqrt(512));
+    }
+    for(var i=0; i < hist.length; i++){
+      drawHistogram(i,1,2,hist[i]);
+    }
+  
+}
+function drawHistogram(x,y,w,h) {
+  //   Good pratice save context
+    histogram_ctx.save();
+    
+    histogram_ctx.fillStyle='green';
+    histogram_ctx.fillRect(x,y,w,h);
+  //   Good pratice restore context
+  histogram_ctx.restore();
+  }
 // -------------- B R I G H T N E S S   A N D   C O N T R A S T ----------------------
 
 
@@ -239,8 +284,8 @@ function ChangeGrayscaleMode(){
 
 function ChangeLight() {
   // idata = img_ctx.getImageData(0 , 0, 512, 512);    // lấy context từ ảnh gốc
-  if(tmp1 != parseInt(b)){
-    tmp1 = parseInt(b);
+  if(tmp1 != parseFloat(b)){
+    tmp1 = parseFloat(b);
     idata = img_ctx.getImageData(0 , 0, 512, 512); 
     for(var i=0; i < idata.data.length; i+=4) {
       idata.data[i] += tmp1;
@@ -251,11 +296,12 @@ function ChangeLight() {
   
   if(tmp2 != parseFloat(con)) {
     tmp2 = parseFloat(con);
+    var intercept = 128 * (1 - tmp2);
     idata = img_ctx.getImageData(0 , 0, 512, 512); 
     for(var i=0; i < idata.data.length; i+=4) {
-      idata.data[i] *= tmp2;
-      idata.data[i+1] *= tmp2;
-      idata.data[i+2] *= tmp2;
+      idata.data[i] =  idata.data[i]*tmp2 + intercept;
+      idata.data[i+1] = idata.data[i+1]*tmp2 + intercept;
+      idata.data[i+2] = idata.data[i+2]*tmp2 + intercept;
     }
   } 
   
@@ -264,7 +310,8 @@ function ChangeLight() {
             var red = idata.data[i];
             var green = idata.data[i+1];
             var blue = idata.data[i+2];
-            var gray_value = (3*red+4*green+blue)>>>3;
+            var gray_value = 0.3*red + 0.59*green + 0.11*blue;
+            // var gray_value = (red+green+blue)/3;
             idata.data[i] = gray_value;
             idata.data[i+1] = gray_value;
             idata.data[i+2] = gray_value;
@@ -300,7 +347,18 @@ function ChangeLight() {
 // - widthstep dùng để điều chỉnh lên dòng hay xuống dòng
 // - kernel_step dùng để điều chỉnh lùi cột hay tiến cột 
 // - i_local là biến chỉ vị trí xung quanh i 
-function convolution(data, idata, w, kernel, opaque=true, threshold=0){
+// ********************************************************
+// Dựa vào cảm nhận bản thân, có một chút điều chỉnh trong Hàm này 
+// Với mục tiêu là tạo ra ảnh không quá khô khan như Sobel gốc
+// Người dùng có thể chọn sử dụng Threshold bằng cách check vào box Threshold
+// Khi không sử dụng Threshold, Hàm tính tích chập này giữ nguyên giá trị của pixel sau khi tính ra được
+// Tức là không biến đổi thành 255 hoặc 0 sau khi so với threshold 
+
+var threshold=false;
+function ChangeThresholdMode(){
+    threshold = !threshold;
+}
+function convolution(data, idata, w, kernel, opaque=true){
   var kernel_step = [-1, -1, -1,0,0,0,1,1,1];
   for(var i = 0; i < idata.length; i++) {
     //   if(i%4==3) continue;
@@ -327,10 +385,14 @@ function convolution(data, idata, w, kernel, opaque=true, threshold=0){
     if(g > 255) {
         g = 255;
     }
-
-    if(g < threshold) {
+    if(threshold==true){
+      if(g < 70){
         g = 0;
+      }
+      else g = 255;
     }
+    
+
     data[i] = g;
   }
 }
@@ -346,6 +408,7 @@ function ChangeSobelMode() {
   sobelMode = !sobelMode;
   Sobelfilter();
 }
+
 
 function Sobelfilter() {
   if(sobelMode==true) {
