@@ -238,7 +238,7 @@ function ShowHistogram(){
       var red = tmp2_idata.data[i];
       var green = tmp2_idata.data[i+1];
       var blue = tmp2_idata.data[i+2];
-      var gray_value = (3*red+4*green+blue)>>>3;
+      var gray_value = 0.3*red + 0.59*green + 0.11*blue;
   
       tmp2_idata.data[i] = gray_value;
       }
@@ -251,22 +251,30 @@ function ShowHistogram(){
         hist[i] = 0;
   
     for(var i=0; i < tmp2_idata.data.length; i+=4){
-      val = Math.floor((tmp2_idata.data[i]/255.0)*255);
+      val = Math.floor(tmp2_idata.data[i]/255.0)*255;
       ++hist[val];
     }
+    var max = findmax(hist);
     for(var i=0; i<hist.length;i++){
-      hist[i] = hist[i]/(Math.sqrt(512));
+      hist[i] = Math.floor(hist[i]/max)*256;
     }
     for(var i=0; i < hist.length; i++){
-      drawHistogram(i,1,2,hist[i]);
+      drawHistogram(i,256-hist[i],1,hist[i]);
     }
   
+}
+function findmax(hist) {
+  var max=0;
+  for(var i=0; i<hist.length;i++){
+    if(max<hist[i]) max=hist[i];
+  }
+  return max;
 }
 function drawHistogram(x,y,w,h) {
   //   Good pratice save context
     histogram_ctx.save();
     
-    histogram_ctx.fillStyle='green';
+    histogram_ctx.fillStyle='black';
     histogram_ctx.fillRect(x,y,w,h);
   //   Good pratice restore context
   histogram_ctx.restore();
