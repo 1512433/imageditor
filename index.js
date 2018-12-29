@@ -243,25 +243,22 @@ function ShowHistogram(){
       tmp2_idata.data[i] = gray_value;
       }
   }
-  
-    var hist = [];
-    var val;
+  var hist = [];
+  var val;
     // initialize the histogram
-    for(var i=0; i < 256; ++i)
-        hist[i] = 0;
+  for(var i=0; i < 256; ++i)
+    hist[i] = 0;
   
-    for(var i=0; i < tmp2_idata.data.length; i+=4){
-      val = Math.floor(tmp2_idata.data[i]/255.0)*255;
-      ++hist[val];
-    }
-    var max = findmax(hist);
-    for(var i=0; i<hist.length;i++){
-      hist[i] = Math.floor(hist[i]/max)*256;
-    }
-    for(var i=0; i < hist.length; i++){
-      drawHistogram(i,256-hist[i],1,hist[i]);
-    }
-  
+  for(var i=0; i < tmp2_idata.data.length; i+=4){
+    ++hist[tmp2_idata.data[i]];
+  }
+  var max = findmax(hist);
+  for(var i=0; i<hist.length;i++){
+    hist[i] = Math.floor((hist[i]/max)*256);
+  }
+  for(var i=0; i < hist.length; i++){
+    drawHistogram(i,256-hist[i],1,hist[i]);
+  }
 }
 function findmax(hist) {
   var max=0;
